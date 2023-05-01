@@ -1,2 +1,2 @@
 expressbackend/node_modules/
-./expressbackend/env
+expressbackend/.env
