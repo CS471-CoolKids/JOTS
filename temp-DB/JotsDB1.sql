@@ -1,73 +1,104 @@
-CREATE DATABASE  IF NOT EXISTS `jotsdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `jotsdb`;
--- MySQL dump 10.13  Distrib 8.0.33, for Win64 (x86_64)
---
--- Host: 127.0.0.1    Database: jotsdb
--- ------------------------------------------------------
--- Server version	8.0.33
+-- MySQL Workbench Forward Engineering
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
---
--- Dumping data for table `courses`
---
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema jotsdb
+-- -----------------------------------------------------
 
-LOCK TABLES `courses` WRITE;
-/*!40000 ALTER TABLE `courses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `courses` ENABLE KEYS */;
-UNLOCK TABLES;
+-- -----------------------------------------------------
+-- Schema jotsdb
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `jotsdb` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+USE `jotsdb` ;
 
---
--- Dumping data for table `students`
---
+-- -----------------------------------------------------
+-- Table `jotsdb`.`courses`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `jotsdb`.`courses` (
+  `CourseID` VARCHAR(9) NOT NULL,
+  `CourseName` VARCHAR(45) NOT NULL,
+  `Textbook` VARCHAR(45) NULL DEFAULT NULL,
+  `HomeworkProblems` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`CourseID`),
+  UNIQUE INDEX `CourseID_UNIQUE` (`CourseID` ASC) VISIBLE,
+  UNIQUE INDEX `CourseName_UNIQUE` (`CourseName` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
-LOCK TABLES `students` WRITE;
-/*!40000 ALTER TABLE `students` DISABLE KEYS */;
-/*!40000 ALTER TABLE `students` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Dumping data for table `tutor_session`
---
+-- -----------------------------------------------------
+-- Table `jotsdb`.`students`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `jotsdb`.`students` (
+  `FNAME` VARCHAR(45) NOT NULL,
+  `LNAME` VARCHAR(45) NOT NULL,
+  `StudentID` INT NOT NULL,
+  `Email` VARCHAR(45) NOT NULL,
+  `Password` VARCHAR(45) NOT NULL,
+  `Rating` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`StudentID`),
+  UNIQUE INDEX `StudentID_UNIQUE` (`StudentID` ASC) VISIBLE,
+  UNIQUE INDEX `Email_UNIQUE` (`Email` ASC) VISIBLE,
+  UNIQUE INDEX `Password_UNIQUE` (`Password` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
-LOCK TABLES `tutor_session` WRITE;
-/*!40000 ALTER TABLE `tutor_session` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tutor_session` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Dumping data for table `tutors`
---
+-- -----------------------------------------------------
+-- Table `jotsdb`.`tutors`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `jotsdb`.`tutors` (
+  `TutorID` INT NOT NULL,
+  `Email` VARCHAR(45) NULL DEFAULT NULL,
+  `Password` VARCHAR(45) NULL DEFAULT NULL,
+  `FName` VARCHAR(45) NULL DEFAULT NULL,
+  `LName` VARCHAR(45) NULL DEFAULT NULL,
+  `Approved` TINYINT NULL DEFAULT NULL,
+  `Rating` VARCHAR(45) NULL DEFAULT NULL,
+  `Credentials` VARCHAR(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`TutorID`),
+  UNIQUE INDEX `TutorID_UNIQUE` (`TutorID` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
-LOCK TABLES `tutors` WRITE;
-/*!40000 ALTER TABLE `tutors` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tutors` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Dumping events for database 'jotsdb'
---
+-- -----------------------------------------------------
+-- Table `jotsdb`.`tutor_session`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `jotsdb`.`tutor_session` (
+  `TutorID` INT NOT NULL,
+  `StudentID` INT NOT NULL,
+  `StartTime` DATETIME NULL DEFAULT NULL,
+  `EndTime` DATETIME NULL DEFAULT NULL,
+  `IsRepeating` TINYINT NULL DEFAULT NULL,
+  `Course` VARCHAR(9) NOT NULL,
+  PRIMARY KEY (`TutorID`, `StudentID`),
+  UNIQUE INDEX `TutorID_UNIQUE` (`TutorID` ASC) VISIBLE,
+  UNIQUE INDEX `StudentID_UNIQUE` (`StudentID` ASC) VISIBLE,
+  INDEX `CourseID_idx` (`Course` ASC) VISIBLE,
+  CONSTRAINT `CourseID`
+    FOREIGN KEY (`Course`)
+    REFERENCES `jotsdb`.`courses` (`CourseID`),
+  CONSTRAINT `StudentID`
+    FOREIGN KEY (`StudentID`)
+    REFERENCES `jotsdb`.`students` (`StudentID`),
+  CONSTRAINT `TutorID`
+    FOREIGN KEY (`TutorID`)
+    REFERENCES `jotsdb`.`tutors` (`TutorID`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
 
---
--- Dumping routines for database 'jotsdb'
---
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2023-05-17 15:11:54
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
