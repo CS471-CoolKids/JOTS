@@ -1,35 +1,40 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const passport = require('passport');
-const session = require('express-session');
+import express from 'express';
+import body_parser from 'body-parser';
+const { json, urlencoded } = body_parser;
+import cors from 'cors';
+import { config } from 'dotenv';
+import passport from 'passport';
+import session from 'express-session';
+import configurePassport from './config/passport.js';
 
-const tutorRoutes = require('./routes/tutor.routes');
-const authRoutes = require('./routes/auth.routes');
+/**
+ * Import Routes
+ */
+import tutorRoutes from './routes/tutor.routes.js';
+import authRoutes from './routes/auth.routes.js';
 
 /**
  * Reads environment variables
  */
-dotenv.config();
+config();
 
 /**
  * Creates Express App With Parser and Passport Authentication
  */
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 app.use(
     session({
-        secret: 'your-secret-key',
+        secret: process.env.APP_SECRET_KEY,
         resave: false,
         saveUninitialized: false,
     })
 );
 app.use(passport.initialize());
 app.use(passport.session());
-require('./config/passport')(passport);
+configurePassport(passport);
 
 /**
  * App Routes
@@ -41,7 +46,6 @@ app.use('/auth', authRoutes);
  * Serving
  */
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

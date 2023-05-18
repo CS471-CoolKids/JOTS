@@ -1,21 +1,33 @@
-const db = require('../config/database.js');
+import db from '../config/database.js';
 const Tutor = db.tutors;
 
-exports.create = async (req, res) => {
+export async function create(req, res) {
     const newTutor = {
-        name: req.body.name,
+        id: req.body.id,
+        email: req.body.email,
+        password: req.body.password,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        credentials: req.body.credentials
     };
 
-    const tutor = await Tutor.create(newTutor);
-    res.send(tutor);
-};
+    try {
+        const tutor = await Tutor.create(newTutor);
+        res.send(tutor);
+    } catch (error) {
+        // This is a simplistic error handling. You might want to
+        // improve this to handle specific error cases
+        res.status(500).send({ message: error.message });
+    }
+}
 
-exports.findAll = async (req, res) => {
+
+export async function findAll(req, res) {
     const tutors = await Tutor.findAll();
     res.send(tutors);
-};
+}
 
-exports.findOne = async (req, res) => {
+export async function findOne(req, res) {
     const id = req.params.id;
     const tutor = await Tutor.findByPk(id);
 
@@ -24,12 +36,15 @@ exports.findOne = async (req, res) => {
     } else {
         res.send(tutor);
     }
-};
+}
 
-exports.update = async (req, res) => {
+export async function update(req, res) {
     const id = req.params.id;
     const updateData = {
-        name: req.body.name,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        credentials: req.body.credentials
     };
 
     const rowsAffected = await Tutor.update(updateData, { where: { id } });
@@ -37,11 +52,14 @@ exports.update = async (req, res) => {
     if (rowsAffected[0] === 0) {
         res.status(404).send(`Tutor with id=${id} not found`);
     } else {
-        res.send({ message: `Tutor with id=${id} updated successfully` });
+        // Fetch the updated tutor and send it back to the client
+        const updatedTutor = await Tutor.findByPk(id);
+        res.send({ message: `Tutor with id=${id} updated successfully`, tutor: updatedTutor });
     }
-};
+}
 
-exports.delete = async (req, res) => {
+
+export async function _delete(req, res) {
     const id = req.params.id;
 
     const rowsAffected = await Tutor.destroy({ where: { id } });
@@ -51,4 +69,4 @@ exports.delete = async (req, res) => {
     } else {
         res.send({ message: `Tutor with id=${id} deleted successfully` });
     }
-};
+}

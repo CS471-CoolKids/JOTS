@@ -1,25 +1,24 @@
 import { DataTypes } from 'sequelize';
 
 /**
- * Represents a tutor
+ * Represents a student
  * 
- * @property {number} id - The unique ID of the tutor
- * @property {string} email - The email of the tutor
- * @property {string} password - The password of the tutor
- * @property {string} firstName - The first name of the tutor
- * @property {string} lastName - The last name of the tutor
- * @property {string} credentials - The credentials of the tutor
+ * @property {number} id - The unique ID of the student
+ * @property {string} email - The email of the student
+ * @property {string} password - The password of the student
+ * @property {string} firstName - The first name of the student
+ * @property {string} lastName - The last name of the student
  * 
  * @see {@link https://sequelize.org/api/v6/class/src/model.js~model Model Docs}.
  */
-const TutorModel = (sequelize) => {
+const StudentModel = (sequelize) => {
     // Define the model using the `sequelize` instance passed as an argument
-    return sequelize.define('tutor', {
+    return sequelize.define('student', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            field: 'TutorID'
+            field: 'StudentID'
         },
         email: {
             type: DataTypes.STRING(45),
@@ -41,15 +40,11 @@ const TutorModel = (sequelize) => {
             type: DataTypes.STRING(45),
             allowNull: false,
             field: 'LName'
-        },
-        credentials: {
-            type: DataTypes.STRING(255),
-            field: 'Credentials'
         }
     }, {
-        tableName: 'tutor',
+        tableName: 'student',
         timestamps: false
     });
 };
 
-export default TutorModel;
+export default StudentModel;

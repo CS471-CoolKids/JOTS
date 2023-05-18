@@ -1,12 +1,15 @@
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+const router = Router();
 
-const controller = require('../controllers/tutor.controller.js');
+import { create, findAll, findOne, update, _delete } from '../controllers/tutor.controller.js';
+import { authenticateToken } from '../controllers/auth.controller.js';
 
-router.post('/', controller.create);
-router.get('/', controller.findAll);
-router.get('/:id', controller.findOne);
-router.put('/:id', controller.update);
-router.delete('/:id', controller.delete);
+router.use(authenticateToken)
 
-module.exports = router;
+router.post('/', create);
+router.get('/', findAll);
+router.get('/:id', findOne);
+router.put('/:id', update);
+router.delete('/:id', _delete);
+
+export default router;
