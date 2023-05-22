@@ -1,0 +1,41 @@
+<!-- nav -->
+<!--<nav class="navbar navbar-expand navbar-dark bg-dark px-3" *ngIf="user">-->
+<!--
+<nav class="navbar navbar-expand navbar-dark bg-dark px-3">
+    <div class="navbar-nav">
+        <a class="nav-item nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+        <a class="nav-item nav-link" routerLink="/users" routerLinkActive="active">Users</a>
+        <a class="nav-item nav-link" routerLink="/tutorsignup" routerLinkActive="active">Tutor Sign-up</a>
+        <button class="btn btn-link nav-item nav-link" (click)="logout()">Logout</button>
+    </div>
+</nav>
+-->
+
+
+<div>
+    <p>Select a course from the dropdown menu:</p>
+    <select name="courses" id="courses">
+        <option value="software-eng">Software Engineering</option>
+        <option value="data-science">Foundations of Data Science</option>
+        <option value="ui-ux-design">UI/UX Design</option>
+        <option value="cloud-com">Cloud Computing</option>
+    </select>
+    <a routerLink="/tutorapp"><input type="submit" value="Submit"></a>
+    <a routerLink="/home"><input type="submit" value="Back"></a>
+</div>
+<!-- main app container -->
+<!--<div class="app-container" [ngClass]="{ 'bg-light': user }">-->
+<div class="app-container">
+    <alert></alert>
+    <router-outlet></router-outlet>
+</div>
+
+<!-- credits
+<div class="text-center mt-4">
+    <p>
+        <a href="https://jasonwatmore.com/post/2022/11/29/angular-14-user-registration-and-login-example-tutorial" target="_top">Angular 14 - User Registration and Login Example & Tutorial</a>
+    </p>
+    <p>
+        <a href="https://jasonwatmore.com" target="_top">JasonWatmore.com</a>
+    </p>
+</div>-->
