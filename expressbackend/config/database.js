@@ -1,4 +1,9 @@
-const { Sequelize } = require('sequelize');
+import dotenv from 'dotenv';
+dotenv.config();
+
+import { Sequelize } from 'sequelize';
+import TutorModel from '../models/tutor.model.js'
+import StudentModel from '../models/student.model.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     host: process.env.DB_HOST,
@@ -8,9 +13,18 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 
 const db = {};
 
-db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.items = require('../models/item.model.js')(sequelize, Sequelize);
+db.tutors = TutorModel(sequelize);
+db.students = StudentModel(sequelize);
 
-module.exports = db;
+try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+} catch (error) {
+    console.error('Unable to connect to the database:', error);
+}
+
+
+export { db, sequelize };
+export default db;
