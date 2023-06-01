@@ -5,9 +5,9 @@ import { create, findAll, findOne, update, _delete } from '../controllers/tutor.
 import { authenticateToken } from '../controllers/auth.controller.js';
 
 // TODO assess proper authentication level for each route
-router.use(authenticateToken)
+router.use(authenticateToken())
 
-router.post('/', create);   
+router.post('/', create);
 router.get('/', findAll);
 router.get('/:id', findOne);
 router.put('/:id', update);

@@ -2,8 +2,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { Sequelize } from 'sequelize';
-import TutorModel from '../models/tutor.model.js'
+import TutorModel from '../models/tutor.model.js';
 import StudentModel from '../models/student.model.js';
+import TutorSessionModel from '../models/tutor_session.model.js';
+import CourseModel from '../models/course.model.js'
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     host: process.env.DB_HOST,
@@ -17,6 +19,8 @@ db.sequelize = sequelize;
 
 db.tutors = TutorModel(sequelize);
 db.students = StudentModel(sequelize);
+db.tutor_sessions = TutorSessionModel(sequelize);
+db.courses = CourseModel(sequelize);
 
 try {
     await sequelize.authenticate();
