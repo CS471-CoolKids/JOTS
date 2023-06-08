@@ -4,6 +4,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home';
 import { TutorsignupComponent } from './tutorsignup/tutorsignup.component';
 import { TutorappComponent } from './tutorapp/tutorapp.component';
+import { TutorratingComponent } from './tutorrating/tutorrating.component';
+import { RatingformComponent } from './ratingform/ratingform.component';
 import { AuthGuard } from './_helpers';
 
 const accountModule = () => import('./account/account.module').then(x => x.AccountModule);
@@ -14,6 +16,8 @@ const routes: Routes = [
     { path: 'users', loadChildren: usersModule, canActivate: [AuthGuard] },
     { path: 'tutorsignup', component: TutorsignupComponent, canActivate: [AuthGuard]},
     { path: 'tutorapp', component: TutorappComponent, canActivate: [AuthGuard]},
+    { path: 'tutorrating', component: TutorratingComponent, canActivate: [AuthGuard]},
+    { path: 'ratingform', component: RatingformComponent, canActivate: [AuthGuard]},
     { path: 'account', loadChildren: accountModule },
 
     // otherwise redirect to home
