@@ -12,6 +12,9 @@ import configurePassport from './config/passport.js';
  */
 import tutorRoutes from './routes/tutor.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import studentRoutes from './routes/student.routes.js'
+import tutorSessionRoutes from './routes/tutor_session.routes.js'
+import courseRoutes from './routes/course.routes.js'
 
 /**
  * Reads environment variables
@@ -41,6 +44,9 @@ configurePassport(passport);
  */
 app.use('/tutors', tutorRoutes);
 app.use('/auth', authRoutes);
+app.use('/students', studentRoutes);
+app.use('/sessions', tutorSessionRoutes);
+app.use('/courses', courseRoutes);
 
 /**
  * Serving

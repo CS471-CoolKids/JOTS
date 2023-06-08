@@ -1,0 +1,35 @@
+POST http://localhost:3000/students HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4
+content-type: application/json
+
+{
+    "email": "jerry.black@yahoo.com",
+    "password": "password789",
+    "firstName": "Jerry",
+    "lastName": "Black"
+}
+
+###
+
+GET http://localhost:3000/students HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4
+
+###
+
+GET http://localhost:3000/students/4 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4
+
+###
+
+PUT http://localhost:3000/students/5 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4
+content-type: application/json
+
+{
+    "password": "password098"
+}
+
+###
+
+DELETE http://localhost:3000/students/4 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4

@@ -1,0 +1,36 @@
+POST http://localhost:3000/tutors HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4
+content-type: application/json
+
+{
+    "email": "bill.smith@drbillsmith.com",
+    "password": "password456",
+    "firstName": "Bill",
+    "lastName": "Smith",
+    "credentials": "Received doctorate in pscyhology in 2007 from MSU"
+}
+
+###
+
+GET http://localhost:3000/tutors HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4
+
+###
+
+GET http://localhost:3000/tutors/4 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4
+
+###
+
+PUT http://localhost:3000/tutors/5 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4
+content-type: application/json
+
+{
+    "credentials": "Received doctorate in pscyhology in 2010 from MSU"
+}
+
+###
+
+DELETE http://localhost:3000/tutors/4 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsInJvbGUiOiJzdHVkZW50IiwiaWF0IjoxNjg0Nzc2NjQwfQ.J4zAtRo2wIsFzk6mgmPN5ihNF15e-PP7wYqiC-95-A4

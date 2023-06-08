@@ -1,11 +1,12 @@
 import db from '../config/database.js';
+import { hashPass } from './auth.controller.js';
 const Tutor = db.tutors;
 
 export async function create(req, res) {
     const newTutor = {
         id: req.body.id,
         email: req.body.email,
-        password: req.body.password,
+        password: await hashPass(req.body.password),
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         credentials: req.body.credentials
@@ -13,6 +14,7 @@ export async function create(req, res) {
 
     try {
         const tutor = await Tutor.create(newTutor);
+        delete tutor.dataValues["password"];
         res.send(tutor);
     } catch (error) {
         // This is a simplistic error handling. You might want to
@@ -24,6 +26,9 @@ export async function create(req, res) {
 
 export async function findAll(req, res) {
     const tutors = await Tutor.findAll();
+    tutors.forEach((tutor) => {
+        delete tutor.dataValues["password"];
+    })
     res.send(tutors);
 }
 
@@ -34,6 +39,7 @@ export async function findOne(req, res) {
     if (!tutor) {
         res.status(404).send(`Tutor with id=${id} not found`);
     } else {
+        delete tutor.dataValues["password"];
         res.send(tutor);
     }
 }
@@ -41,6 +47,7 @@ export async function findOne(req, res) {
 export async function update(req, res) {
     const id = req.params.id;
     const updateData = {
+        password: req.body.password !== undefined ? await hashPass(req.body.password) : undefined,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
@@ -54,6 +61,7 @@ export async function update(req, res) {
     } else {
         // Fetch the updated tutor and send it back to the client
         const updatedTutor = await Tutor.findByPk(id);
+        delete updatedTutor.dataValues["password"];
         res.send({ message: `Tutor with id=${id} updated successfully`, tutor: updatedTutor });
     }
 }

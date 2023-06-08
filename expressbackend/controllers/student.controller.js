@@ -1,17 +1,19 @@
 import db from '../config/database.js';
 const Student = db.students;
+import { hashPass } from './auth.controller.js';
 
 export async function create(req, res) {
     const newStudent = {
         id: req.body.id,
         email: req.body.email,
-        password: req.body.password,
+        password: await hashPass(req.body.password),
         firstName: req.body.firstName,
         lastName: req.body.lastName
     };
 
     try {
         const student = await Student.create(newStudent);
+        delete student.dataValues["password"];
         res.send(student);
     } catch (error) {
         // This is a simplistic error handling. You might want to
@@ -23,6 +25,9 @@ export async function create(req, res) {
 
 export async function findAll(req, res) {
     const students = await Student.findAll();
+    students.forEach((student) => {
+        delete student.dataValues["password"];
+    })
     res.send(students);
 }
 
@@ -33,6 +38,7 @@ export async function findOne(req, res) {
     if (!student) {
         res.status(404).send(`Student with id=${id} not found`);
     } else {
+        delete student.dataValues["password"];
         res.send(student);
     }
 }
@@ -40,6 +46,7 @@ export async function findOne(req, res) {
 export async function update(req, res) {
     const id = req.params.id;
     const updateData = {
+        password: req.body.password !== undefined ? await hashPass(req.body.password) : undefined,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email
@@ -52,6 +59,7 @@ export async function update(req, res) {
     } else {
         // Fetch the updated student and send it back to the client
         const updatedStudent = await Student.findByPk(id);
+        delete updatedStudent.dataValues["password"];
         res.send({ message: `Student with id=${id} updated successfully`, student: updatedStudent });
     }
 }
@@ -67,4 +75,26 @@ export async function _delete(req, res) {
     } else {
         res.send({ message: `Student with id=${id} deleted successfully` });
     }
+}
+
+export async function findMyTutors(req, res) {
+    const id = req.params.id;
+
+    const tutors = await Student.findAll({
+        where: { id },
+        include: [
+            {
+                model: TutorSession,
+                attributes: [],
+                include: [
+                    {
+                        model: Student,
+                        attributes: ['firstName', 'lastName'],
+                    },
+                ],
+            },
+        ]
+    });
+
+    console.log(tutors);
 }

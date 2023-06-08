@@ -40,11 +40,11 @@ export default function configurePassport(passport) {
     passport.deserializeUser(({ id, modelName }, done) => {
         let model;
         switch (modelName) {
-            case 'Student':
-                model = Student;
+            case 'student':
+                model = db.students;
                 break;
-            case 'Tutor':
-                model = Tutor;
+            case 'tutor':
+                model = db.tutors;
                 break;
         }
 

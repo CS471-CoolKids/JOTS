@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 
-import { create, findAll, findOne, update, _delete } from '../controllers/tutor.controller.js';
+import { create, findAll, findOne, update, _delete } from '../controllers/course.controller.js';
 import { authenticateToken } from '../controllers/auth.controller.js';
 
 // TODO assess proper authentication level for each route

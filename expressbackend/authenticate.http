@@ -18,3 +18,14 @@ content-type: application/json
     "email": "john.doe@example.com",
     "password": "password123"
 }
+
+###
+
+POST http://localhost:3000/auth/login HTTP/1.1
+content-type: application/json
+
+{
+    "email": "jerry.black@yahoo.com",
+    "password": "password789"
+}
+

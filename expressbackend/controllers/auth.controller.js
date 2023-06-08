@@ -22,10 +22,6 @@ const register = async (req, res) => {
         return res.status(400).json({ message: 'Email is already registered' });
     }
 
-    // Server-side password hashing
-    const salt = await genSalt(10);
-    const hashedPassword = await hash(password, salt);
-
     // Determine the model to use based on the role
     const model = models[role.toLowerCase()];
 
@@ -36,7 +32,7 @@ const register = async (req, res) => {
     // Create the new user with the hashed password
     const newUser = await model.create({
         email,
-        password: hashedPassword,
+        password: hashPass(password),
         firstName,
         lastName
     });
@@ -98,4 +94,10 @@ const authenticateToken = (userRoles) => (req, res, next) => {
     }
 };
 
-export { register, login, authenticateToken };
+const hashPass = async (password) => {
+    // Server-side password hashing
+    const salt = await genSalt(10);
+    return await hash(password, salt);
+}
+
+export { register, login, authenticateToken, hashPass };
