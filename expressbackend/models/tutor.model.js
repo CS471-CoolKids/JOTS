@@ -4,11 +4,10 @@ import { DataTypes } from 'sequelize';
  * Represents a tutor
  * 
  * @property {number} id - The unique ID of the tutor
+ * @property {string} name - The name of the tutor
  * @property {string} email - The email of the tutor
  * @property {string} password - The password of the tutor
- * @property {string} firstName - The first name of the tutor
- * @property {string} lastName - The last name of the tutor
- * @property {string} credentials - The credentials of the tutor
+ * @property {string} resume - The resume of the tutor
  * 
  * @see {@link https://sequelize.org/api/v6/class/src/model.js~model Model Docs}.
  */
@@ -19,32 +18,27 @@ const TutorModel = (sequelize) => {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            field: 'TutorID'
+            field: 'tutor_id'
+        },
+        name: {
+            type: DataTypes.STRING(100),
+            allowNull: false,
+            field: 'name'
         },
         email: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING(100),
             allowNull: false,
             unique: true,
-            field: 'Email'
+            field: 'email'
         },
         password: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING(100),
             allowNull: false,
-            field: 'Password'
+            field: 'password'
         },
-        firstName: {
-            type: DataTypes.STRING(45),
-            allowNull: false,
-            field: 'FName'
-        },
-        lastName: {
-            type: DataTypes.STRING(45),
-            allowNull: false,
-            field: 'LName'
-        },
-        credentials: {
+        resume: {
             type: DataTypes.STRING(255),
-            field: 'Credentials'
+            field: 'resume'
         }
     }, {
         tableName: 'tutor',
