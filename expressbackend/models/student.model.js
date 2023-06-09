@@ -4,10 +4,9 @@ import { DataTypes } from 'sequelize';
  * Represents a student
  * 
  * @property {number} id - The unique ID of the student
+ * @property {string} name - The first name of the student
  * @property {string} email - The email of the student
  * @property {string} password - The password of the student
- * @property {string} firstName - The first name of the student
- * @property {string} lastName - The last name of the student
  * 
  * @see {@link https://sequelize.org/api/v6/class/src/model.js~model Model Docs}.
  */
@@ -20,26 +19,21 @@ const StudentModel = (sequelize) => {
             autoIncrement: true,
             field: 'StudentID'
         },
+        name: {
+            type: DataTypes.STRING(100),
+            allowNull: false,
+            field: 'name'
+        },
         email: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING(100),
             allowNull: false,
             unique: true,
-            field: 'Email'
+            field: 'email'
         },
         password: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING(100),
             allowNull: false,
-            field: 'Password'
-        },
-        firstName: {
-            type: DataTypes.STRING(45),
-            allowNull: false,
-            field: 'FName'
-        },
-        lastName: {
-            type: DataTypes.STRING(45),
-            allowNull: false,
-            field: 'LName'
+            field: 'password'
         }
     }, {
         tableName: 'student',

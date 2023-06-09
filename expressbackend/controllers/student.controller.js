@@ -5,10 +5,9 @@ import { hashPass } from './auth.controller.js';
 export async function create(req, res) {
     const newStudent = {
         id: req.body.id,
+        name: req.body.name,
         email: req.body.email,
-        password: await hashPass(req.body.password),
-        firstName: req.body.firstName,
-        lastName: req.body.lastName
+        password: await hashPass(req.body.password)
     };
 
     try {
@@ -47,8 +46,7 @@ export async function update(req, res) {
     const id = req.params.id;
     const updateData = {
         password: req.body.password !== undefined ? await hashPass(req.body.password) : undefined,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
+        name: req.body.name,
         email: req.body.email
     };
 
@@ -89,7 +87,7 @@ export async function findMyTutors(req, res) {
                 include: [
                     {
                         model: Student,
-                        attributes: ['firstName', 'lastName'],
+                        attributes: ['name'],
                     },
                 ],
             },
