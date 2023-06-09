@@ -1,23 +1,23 @@
 import { DataTypes } from 'sequelize';
 
 /**
- * Represents a student
+ * Represents a manager
  * 
- * @property {number} id - The unique ID of the student
- * @property {string} name - The first name of the student
- * @property {string} email - The email of the student
- * @property {string} password - The password of the student
+ * @property {number} id - The unique ID of the manager
+ * @property {string} name - The first name of the manager
+ * @property {string} email - The email of the manager
+ * @property {string} password - The password of the manager
  * 
  * @see {@link https://sequelize.org/api/v6/class/src/model.js~model Model Docs}.
  */
-const StudentModel = (sequelize) => {
+const ManagerModel = (sequelize) => {
     // Define the model using the `sequelize` instance passed as an argument
-    return sequelize.define('student', {
+    return sequelize.define('manager', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            field: 'student_id'
+            field: 'manager_id'
         },
         name: {
             type: DataTypes.STRING(100),
@@ -36,9 +36,9 @@ const StudentModel = (sequelize) => {
             field: 'password'
         }
     }, {
-        tableName: 'student',
+        tableName: 'manager',
         timestamps: false
     });
 };
 
-export default StudentModel;
+export default ManagerModel;
