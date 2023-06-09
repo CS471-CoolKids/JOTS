@@ -1,23 +1,22 @@
 import { DataTypes } from 'sequelize';
 
 /**
- * Represents a manager
+ * Represents a user
  * 
- * @property {number} id - The unique ID of the manager
- * @property {string} name - The first name of the manager
- * @property {string} email - The email of the manager
- * @property {string} password - The password of the manager
+ * @property {number} id - The unique ID of the user
+ * @property {string} name - The name of the user
+ * @property {string} email - The email of the user
+ * @property {string} password - The hashed password of the user
  * 
  * @see {@link https://sequelize.org/api/v6/class/src/model.js~model Model Docs}.
  */
-const ManagerModel = (sequelize) => {
+const UserModel = (sequelize) => {
     // Define the model using the `sequelize` instance passed as an argument
-    return sequelize.define('manager', {
+    return sequelize.define('user', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
-            field: 'manager_id'
+            field: 'user_id'
         },
         name: {
             type: DataTypes.STRING(100),
@@ -36,9 +35,9 @@ const ManagerModel = (sequelize) => {
             field: 'password'
         }
     }, {
-        tableName: 'manager',
+        tableName: 'user',
         timestamps: false
     });
 };
 
-export default ManagerModel;
+export default UserModel;
