@@ -25,39 +25,47 @@ export class AddEditComponent implements OnInit {
     ngOnInit() {
         this.id = this.route.snapshot.params['id'];
 
-        // form with validation rules
+        // Form with validation rules
         this.form = this.formBuilder.group({
-            firstName: ['', Validators.required],
-            lastName: ['', Validators.required],
-            username: ['', Validators.required],
-            // password only required in add mode
-            password: ['', [Validators.minLength(6), ...(!this.id ? [Validators.required] : [])]]
+            name: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', [Validators.minLength(6), ...(this.id ? [] : [Validators.required])]],
+            student: [false],
+            tutor: [false],
+            manager: [false]
         });
 
-        this.title = 'Add User';
+        this.title = this.id ? 'Edit User' : 'Add User';
+
         if (this.id) {
-            // edit mode
-            this.title = 'Edit User';
+            // Edit mode
             this.loading = true;
             this.accountService.getById(this.id)
                 .pipe(first())
-                .subscribe(x => {
-                    this.form.patchValue(x);
+                .subscribe(user => {
+                    this.form.patchValue({
+                        name: user.name,
+                        email: user.email,
+                        student: user.roles?.includes('student') || false,
+                        tutor: user.roles?.includes('tutor') || false,
+                        manager: user.roles?.includes('manager') || false
+                    });
                     this.loading = false;
                 });
+
         }
     }
 
-    // convenience getter for easy access to form fields
+    // Convenience getter for easy access to form fields
     get f() { return this.form.controls; }
 
     onSubmit() {
         this.submitted = true;
 
-        // reset alerts on submit
+        // Reset alerts on submit
         this.alertService.clear();
 
-        // stop here if form is invalid
+        // Stop here if form is invalid
         if (this.form.invalid) {
             return;
         }
@@ -74,13 +82,34 @@ export class AddEditComponent implements OnInit {
                     this.alertService.error(error);
                     this.submitting = false;
                 }
-            })
+            });
     }
 
     private saveUser() {
-        // create or update user based on id param
+        // Create or update user based on id param
+        const userData = {
+            name: this.f.name.value,
+            email: this.f.email.value,
+            password: this.f.password.value,
+            roles: this.getSelectedRoles()
+        };
+
         return this.id
-            ? this.accountService.update(this.id!, this.form.value)
-            : this.accountService.register(this.form.value);
+            ? this.accountService.update(this.id, userData)
+            : this.accountService.register(userData);
+    }
+
+    private getSelectedRoles(): string[] {
+        const roles: string[] = [];
+        if (this.f.student.value) {
+            roles.push('student');
+        }
+        if (this.f.tutor.value) {
+            roles.push('tutor');
+        }
+        if (this.f.manager.value) {
+            roles.push('manager');
+        }
+        return roles;
     }
 }

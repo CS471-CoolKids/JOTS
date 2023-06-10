@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import { getUserById, getUsers, updateUserPassword } from '../controllers/users.controller.js';
-import { authenticateToken, checkManagerRole } from './auth.middleware.js';
+import { getUserById, getUsers, updateUser, deleteUser } from '../controllers/users.controller.js';
+import { populateUserFromToken } from './auth.middleware.js';
 
 const router = Router();
 
-router.use(authenticateToken());
+router.use(populateUserFromToken);
 
+router.get('/', getUsers);
 router.get('/:userId', getUserById);
-router.get('/', checkManagerRole, getUsers);
-router.put('/password', updateUserPassword);
+router.delete('/:userId', deleteUser);
+router.put('/:userId', updateUser);
 
 export default router;

@@ -61,4 +61,6 @@ try {
 
 
 export { db, sequelize };
+
+
 export default db;

@@ -1,29 +1,27 @@
 import jwt from 'jsonwebtoken';
+import { getUserRoles } from '../controllers/users.controller.js';
 
 /**
  * Middleware to authenticate token
  * @param {Array} userRoles - User roles that are allowed to access the route (optional)
  */
-const authenticateToken = (userRoles) => (req, res, next) => {
+export const populateUserFromToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token) {
-        jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, decoded) => {
+        jwt.verify(token, process.env.TOKEN_SECRET_KEY, async (err, decoded) => {
             if (err) {
                 return res.sendStatus(403);
             }
 
             req.user = decoded;
-
-            if (userRoles && !userRoles.some(role => decoded.roles.includes(role))) {
-                return res.sendStatus(401);
-            }
+            req.user.roles = await getUserRoles(decoded.id);
 
             next();
         });
     } else {
-        res.sendStatus(401);
+        next();
     }
 };
 
@@ -32,8 +30,6 @@ const authenticateToken = (userRoles) => (req, res, next) => {
  */
 const checkManagerRole = (req, res, next) => {
     const currentUser = req.user;
-
-    console.log("Manager Check User: " + currentUser);
 
     if (!currentUser.roles.includes('manager')) {
         return res.status(403).json({ message: 'Unauthorized' });
@@ -55,5 +51,3 @@ const checkSelfUser = (req, res, next) => {
 
     next();
 };
-
-export { authenticateToken, checkManagerRole, checkSelfUser };
