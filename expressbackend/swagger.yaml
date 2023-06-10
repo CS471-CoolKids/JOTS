@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Your API Title
-  description: API description
+  title: JOTS API
+  description: API for J? Online Tutoring System
   version: 1.0.0
 paths:
   /auth/register:
