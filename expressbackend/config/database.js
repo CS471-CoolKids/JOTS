@@ -47,6 +47,11 @@ db.session_day = SessionDayModel(sequelize);
 db.time_slot = TimeSlotModel(sequelize);
 db.slot_day = SlotDayModel(sequelize);
 
+// Define associations and foreign keys
+db.user.hasOne(db.student, { foreignKey: 'id' });
+db.user.hasOne(db.tutor, { foreignKey: 'id' });
+db.user.hasOne(db.manager, { foreignKey: 'id' });
+
 try {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');

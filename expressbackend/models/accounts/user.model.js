@@ -16,6 +16,7 @@ const UserModel = (sequelize) => {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             field: 'user_id'
         },
         name: {

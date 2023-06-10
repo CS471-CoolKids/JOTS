@@ -1,103 +1,268 @@
-import bcryptjs from 'bcryptjs';
-const { genSalt, hash } = bcryptjs;
-import passport from 'passport';
-import { db } from '../config/database.js'
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken'
+
+import { db, sequelize } from '../config/database.js';
+import { getUserRoles } from './users.controller.js';
+const userModel = db.user;
+const studentModel = db.student;
+const tutorModel = db.tutor;
+const managerModel = db.manager;
 
 const register = async (req, res) => {
-    const { role, email, password, firstName, lastName } = req.body;
+    const { role, email, password, name } = req.body;
 
-    const models = { 'student': db.students, 'tutor': db.tutors };
-
-    let promiseArray = Object.values(models).map(model => model.findOne({ where: { email } }));
-
-    const existingUser = await Promise.all(promiseArray)
-        .then(results => results.find(result => result !== null))
-        .catch(err => {
-            // Handle error
-            console.log(err);
-        });
-
-    if (existingUser) {
-        return res.status(400).json({ message: 'Email is already registered' });
+    const validRoles = ['student', 'tutor'];
+    if (!validRoles.includes(role)) {
+        return res.status(400).json({ message: 'Invalid role. Must be student or tutor.' });
     }
 
-    // Determine the model to use based on the role
-    const model = models[role.toLowerCase()];
+    try {
+        await createUser(name, email, password, role);
+        res.status(201).json({ message: 'Registration successful' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
-    if (!model) {
-        return res.status(400).json({ message: 'Invalid role' });
+const registerManager = async (req, res) => {
+    const { name, email, password } = req.body;
+    const currentUser = req.user;
+
+    // Check if the user calling the function is a manager
+    if (!currentUser.roles.includes('manager')) {
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        // Check if the email is already registered
+        const existingUser = await userModel.findOne({ where: { email } });
+
+        if (existingUser) {
+            await managerModel.create({ id: existingUser.id });
+            return res.status(200).json({ message: 'User has been assigned as a manager' });
+        } else {
+            try {
+                await createUser(name, email, password, 'manager');
+                res.status(201).json({ message: 'Registration of manager successful' });
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const login = (req, res) => {
+    const { email, password } = req.body;
+
+    // Check if the user exists in the database
+    userModel
+        .findOne({ where: { email } })
+        .then(async (user) => {
+            if (!user) {
+                return res.status(401).json({ message: 'Incorrect email or password' });
+            }
+
+            // Compare the password
+            bcrypt.compare(password, user.password, async (err, isMatch) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Internal server error' });
+                }
+
+                if (isMatch) {
+                    // Fetch the roles for the user
+                    const roles = await getUserRoles(user.id);
+
+                    // Generate a JWT token
+                    const token = jwt.sign(
+                        { id: user.id, email: user.email, roles },
+                        process.env.TOKEN_SECRET_KEY
+                    );
+
+                    res.status(200).json({ message: 'Login successful', token, roles });
+                } else {
+                    res.status(401).json({ message: 'Incorrect email or password' });
+                }
+            });
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ message: 'Internal server error' });
+        });
+};
+
+const addRole = async (req, res) => {
+    const currentUser = req.user;
+    const { role } = req.params;
+
+    const userId = parseInt(req.params.userId, 10); // Convert userId to a number
+
+    if (isNaN(userId)) {
+        return res.status(400).json({ message: 'Invalid userId' });
+    }
+
+    if (userId !== currentUser.id && !currentUser.roles.includes('manager')) {
+        // Users can only remove their own roles, unless they are a manager
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    let user;
+    try {
+        user = await userModel.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        let roleModel;
+        if (role === 'student') {
+            roleModel = studentModel;
+        } else if (role === 'tutor') {
+            roleModel = tutorModel;
+        } else {
+            return res.status(400).json({ message: 'Invalid role' });
+        }
+
+        // Check if the user already has the role
+        let userWithRole = await roleModel.findByPk(user.id);
+        if (userWithRole) {
+            return res.status(400).json({ message: 'User already has role' });
+        }
+
+        // add the user to the role table
+        await roleModel.create({
+            id: user.id
+        });
+
+        res.status(200).json({ message: 'Role has been added' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const removeRole = async (req, res) => {
+    const currentUser = req.user;
+    const { role } = req.params;
+
+    const userId = parseInt(req.params.userId, 10); // Convert userId to a number
+
+    if (isNaN(userId)) {
+        return res.status(400).json({ message: 'Invalid userId' });
+    }
+
+    if (userId !== currentUser.id && !currentUser.roles.includes('manager')) {
+        // Users can only remove their own roles, unless they are a manager
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    if (userId !== currentUser.id && role === 'manager') {
+        // Managers cannot remove the manager role of others
+        return res.status(400).json({ message: 'Unauthorized to remove this role' });
+    }
+
+    let user;
+    try {
+        user = await userModel.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        let roleModel;
+        if (role === 'student') {
+            roleModel = studentModel;
+        } else if (role === 'tutor') {
+            roleModel = tutorModel;
+        } else if (role === 'manager') {
+            roleModel = managerModel;
+        } else {
+            return res.status(400).json({ message: 'Invalid role' });
+        }
+
+        // Check if the user has any other roles
+        const countStudentRoles = await studentModel.count({ where: { id: user.id } });
+        const countTutorRoles = await tutorModel.count({ where: { id: user.id } });
+        const countManagerRoles = await managerModel.count({ where: { id: user.id } });
+
+        const remainingRoles = countStudentRoles + countTutorRoles + countManagerRoles;
+
+        if (remainingRoles <= 1) {
+            // User cannot remove their last role
+            return res.status(400).json({ message: 'Cannot remove the last role. Please delete the user instead.' });
+        }
+
+        console.log("Model status: " + roleModel);
+
+        // Remove the role entry for the user
+        await roleModel.destroy({ where: { id: user.id } });
+
+        res.status(200).json({ message: 'Role has been removed' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    const currentUser = req.user;
+    const userId = parseInt(req.params.userId, 10); // Convert userId to a number
+
+    if (isNaN(userId)) {
+        return res.status(400).json({ message: 'Invalid userId' });
+    }
+
+    try {
+        if (userId !== currentUser.id && !currentUser.roles.includes('manager')) {
+            // Users can only delete their own account, unless they are a manager
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+
+    let user;
+    try {
+        user = await userModel.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Delete the user and associated roles
+        await user.destroy();
+
+        res.status(200).json({ message: 'User has been deleted' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const createUser = async (name, email, password, role) => {
+    const roleModel = role === 'student' ? studentModel : role === 'tutor' ? tutorModel : managerModel;
+
+    // Check if the email is already registered
+    const existingUser = await userModel.findOne({ where: { email } });
+
+    if (existingUser) {
+        throw new Error('Email is already registered');
     }
 
     // Create the new user with the hashed password
-    const newUser = await model.create({
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = await userModel.create({
         email,
-        password: hashPass(password),
-        firstName,
-        lastName
+        password: hashedPassword,
+        name
     });
 
-    res.status(201).json({ message: "Registration successful" });
+    // Create the role entry for the user
+    await roleModel.create({ id: newUser.id });
 };
 
-
-const login = (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
-        if (err) {
-            return next(err);
-        }
-
-        if (!user) {
-            return res.status(401).json({ message: info.message });
-        }
-
-        req.logIn(user, (err) => {
-            if (err) {
-                return next(err);
-            }
-
-            // Generate the token
-            const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.TOKEN_SECRET_KEY);
-
-            res.status(200).json({ message: 'Login successful', token });
-        });
-    })(req, res, next);
-};
-
-const authenticateToken = (userRoles) => (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token) {
-        jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, decoded) => {
-
-            if (err) {
-                // Handle invalid token
-                return res.sendStatus(403);
-            }
-
-            // Store the decoded token or user information in the request object for later use
-            req.user = decoded;
-
-            // Check if userRoles are provided and match the decoded role
-            if (userRoles && !userRoles.includes(decoded.role)) {
-                // Unauthorized user role
-                return res.sendStatus(401);
-            }
-
-            // Proceed to the next middleware or route handler
-            next();
-        });
-    } else {
-        // Handle missing token
-        res.sendStatus(401);
-    }
-};
-
-const hashPass = async (password) => {
-    // Server-side password hashing
-    const salt = await genSalt(10);
-    return await hash(password, salt);
-}
-
-export { register, login, authenticateToken, hashPass };
+export { register, registerManager, login, addRole, removeRole, deleteUser };
