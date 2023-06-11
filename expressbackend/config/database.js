@@ -10,7 +10,7 @@ import ManagerModel from '../models/accounts/manager.model.js';
 // Courses
 import CourseModel from '../models/courses/course.model.js'
 import CanTutorModel from '../models/courses/can_tutor.model.js';
-import DesiresTutorForModel from '../models/courses/course.model copy.js';
+import DesiresTutorForModel from '../models/courses/desires_tutor_for.model.js';
 // Ratings
 import StudentRatingTutorModel from '../models/ratings/student_rating_tutor.model.js';
 import TutorRatingStudentModel from '../models/ratings/tutor_rating_student.model.js';
@@ -51,6 +51,15 @@ db.slot_day = SlotDayModel(sequelize);
 db.user.hasOne(db.student, { foreignKey: 'id' });
 db.user.hasOne(db.tutor, { foreignKey: 'id' });
 db.user.hasOne(db.manager, { foreignKey: 'id' });
+
+db.course.belongsTo(db.manager, { foreignKey: 'managerId', as: 'manager' });
+db.manager.hasMany(db.course, { foreignKey: 'managerId', as: 'courses' });
+
+db.tutor.belongsToMany(db.course, { through: db.can_tutor, foreignKey: 'tutorId', otherKey: 'courseId' });
+db.course.belongsToMany(db.tutor, { through: db.can_tutor, foreignKey: 'courseId', otherKey: 'tutorId' });
+
+db.student.belongsToMany(db.course, { through: db.desires_tutor_for, foreignKey: 'studentId', otherKey: 'courseId' });
+db.course.belongsToMany(db.student, { through: db.desires_tutor_for, foreignKey: 'courseId', otherKey: 'studentId' });
 
 try {
     await sequelize.authenticate();

@@ -14,6 +14,7 @@ import swaggerUi from 'swagger-ui-express';
  */
 import authRoutes from './routes/auth.routes.js';
 import usersRoutes from './routes/users.routes.js';
+import coursesRoutes from './routes/courses.routes.js'
 
 import fs from 'fs';
 import yaml from 'js-yaml';
@@ -49,6 +50,7 @@ configurePassport(passport);
  */
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
+app.use('/courses', coursesRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
