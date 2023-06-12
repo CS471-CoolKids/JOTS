@@ -1,103 +1,78 @@
-import bcryptjs from 'bcryptjs';
-const { genSalt, hash } = bcryptjs;
-import passport from 'passport';
-import { db } from '../config/database.js'
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken'
 
-const register = async (req, res) => {
-    const { role, email, password, firstName, lastName } = req.body;
+import { db, sequelize } from '../config/database.js';
+import { createUser, getUserRoles } from './users.controller.js';
+const userModel = db.user;
 
-    const models = { 'student': db.students, 'tutor': db.tutors };
+export const register = async (req, res) => {
+    const { roles, email, password, name } = req.body;
 
-    let promiseArray = Object.values(models).map(model => model.findOne({ where: { email } }));
-
-    const existingUser = await Promise.all(promiseArray)
-        .then(results => results.find(result => result !== null))
-        .catch(err => {
-            // Handle error
-            console.log(err);
-        });
-
-    if (existingUser) {
-        return res.status(400).json({ message: 'Email is already registered' });
+    if (!roles || !email || !password || !name) {
+        return res.status(400).json({ message: 'Missing Attributes. Must have name, email, password, and role' });
     }
 
-    // Determine the model to use based on the role
-    const model = models[role.toLowerCase()];
-
-    if (!model) {
-        return res.status(400).json({ message: 'Invalid role' });
+    const validRoles = ['student', 'tutor', 'manager'];
+    if (!roles.every((role) => validRoles.includes(role))) {
+        return res.status(400).json({ message: 'Invalid role. Must be student, tutor, or manager.' });
     }
 
-    // Create the new user with the hashed password
-    const newUser = await model.create({
-        email,
-        password: hashPass(password),
-        firstName,
-        lastName
-    });
-
-    res.status(201).json({ message: "Registration successful" });
-};
-
-
-const login = (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
-        if (err) {
-            return next(err);
+    if (roles.includes('manager')) {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorizaed' });
         }
 
-        if (!user) {
-            return res.status(401).json({ message: info.message });
+        if (!req.user.roles.includes('manager')) {
+            return res.status(401).json({ message: 'Unauthorized to add manager role.' });
         }
+    }
 
-        req.logIn(user, (err) => {
-            if (err) {
-                return next(err);
-            }
-
-            // Generate the token
-            const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.TOKEN_SECRET_KEY);
-
-            res.status(200).json({ message: 'Login successful', token });
-        });
-    })(req, res, next);
-};
-
-const authenticateToken = (userRoles) => (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token) {
-        jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, decoded) => {
-
-            if (err) {
-                // Handle invalid token
-                return res.sendStatus(403);
-            }
-
-            // Store the decoded token or user information in the request object for later use
-            req.user = decoded;
-
-            // Check if userRoles are provided and match the decoded role
-            if (userRoles && !userRoles.includes(decoded.role)) {
-                // Unauthorized user role
-                return res.sendStatus(401);
-            }
-
-            // Proceed to the next middleware or route handler
-            next();
-        });
-    } else {
-        // Handle missing token
-        res.sendStatus(401);
+    try {
+        await createUser(name, email, password, roles);
+        res.status(201).json({ message: 'Registration successful' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-const hashPass = async (password) => {
-    // Server-side password hashing
-    const salt = await genSalt(10);
-    return await hash(password, salt);
-}
+export const login = (req, res) => {
+    const { email, password } = req.body;
 
-export { register, login, authenticateToken, hashPass };
+    // Check if the user exists in the database
+    userModel
+        .findOne({ where: { email } })
+        .then(async (user) => {
+            if (!user) {
+                return res.status(401).json({ message: 'Incorrect email or password' });
+            }
+
+            // Compare the password
+            bcrypt.compare(password, user.password, async (err, isMatch) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Internal server error' });
+                }
+
+                if (isMatch) {
+                    const roles = await getUserRoles(user.id);
+                    const token = jwt.sign({ id: user.id, name: user.name, email: user.email, roles }, process.env.TOKEN_SECRET_KEY);
+                    res.status(200).json({ message: 'Login successful', user: { id: user.id, name: user.name, email: user.email, roles }, token });
+                } else {
+                    res.status(401).json({ message: 'Incorrect email or password' });
+                }
+            });
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({ message: 'Internal server error' });
+        });
+};
+
+export const hashPassword = async (password) => {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(password, salt);
+};
+
+export const comparePassword = async (password, hashedPassword) => {
+    return await bcrypt.compare(password, hashedPassword);
+};
