@@ -8,16 +8,21 @@ const userModel = db.user;
 export const register = async (req, res) => {
     const { roles, email, password, name } = req.body;
 
-    if (!roles || !email || !password || !name) {
+    let userRoles = roles;
+    if (!userRoles) {
+        userRoles = ['student'];
+    }
+
+    if (!email || !password || !name) {
         return res.status(400).json({ message: 'Missing Attributes. Must have name, email, password, and role' });
     }
 
     const validRoles = ['student', 'tutor', 'manager'];
-    if (!roles.every((role) => validRoles.includes(role))) {
+    if (!userRoles.every((role) => validRoles.includes(role))) {
         return res.status(400).json({ message: 'Invalid role. Must be student, tutor, or manager.' });
     }
 
-    if (roles.includes('manager')) {
+    if (userRoles.includes('manager')) {
         if (!req.user) {
             return res.status(401).json({ message: 'Unauthorizaed' });
         }
@@ -28,7 +33,7 @@ export const register = async (req, res) => {
     }
 
     try {
-        await createUser(name, email, password, roles);
+        await createUser(name, email, password, userRoles);
         res.status(201).json({ message: 'Registration successful' });
     } catch (error) {
         console.error(error);
