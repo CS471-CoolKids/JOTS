@@ -11,6 +11,9 @@ import { JwtInterceptor, ErrorInterceptor } from './_helpers';
 import { AppComponent } from './app.component';
 import { AlertComponent } from './_components';
 import { HomeComponent } from './home';
+import { TutorratingComponent } from './tutorrating/tutorrating.component';
+import { RatingformComponent } from './ratingform/ratingform.component';
+import { RouterModule } from '@angular/router';
 import { TutorappComponent } from './tutorapp/tutorapp.component';
 import { TutorsignupComponent } from './tutorsignup/tutorsignup.component';
 
@@ -19,12 +22,15 @@ import { TutorsignupComponent } from './tutorsignup/tutorsignup.component';
         BrowserModule,
         ReactiveFormsModule,
         HttpClientModule,
-        AppRoutingModule
+        AppRoutingModule,
+        RouterModule
     ],
     declarations: [
         AppComponent,
         AlertComponent,
         HomeComponent,
+        TutorratingComponent,
+        RatingformComponent,
         TutorappComponent,
         TutorsignupComponent
     ],
