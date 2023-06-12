@@ -6,12 +6,21 @@ import { config } from 'dotenv';
 import passport from 'passport';
 import session from 'express-session';
 import configurePassport from './config/passport.js';
+import swaggerUi from 'swagger-ui-express';
+
 
 /**
  * Import Routes
  */
-import tutorRoutes from './routes/tutor.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import usersRoutes from './routes/users.routes.js';
+import coursesRoutes from './routes/courses.routes.js'
+
+import fs from 'fs';
+import yaml from 'js-yaml';
+
+const swaggerDocument = yaml.load(fs.readFileSync('./swagger.yaml', 'utf8'));
+
 
 /**
  * Reads environment variables
@@ -39,8 +48,11 @@ configurePassport(passport);
 /**
  * App Routes
  */
-app.use('/tutors', tutorRoutes);
 app.use('/auth', authRoutes);
+app.use('/users', usersRoutes);
+app.use('/courses', coursesRoutes);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 /**
  * Serving

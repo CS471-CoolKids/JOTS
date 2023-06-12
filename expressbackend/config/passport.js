@@ -1,55 +1,44 @@
 import { Strategy as LocalStrategy } from 'passport-local';
-import { compare } from 'bcrypt';
-import { db } from './database.js'
+import bcrypt from 'bcryptjs';
+import { db } from './database.js';
+const userModel = db.user;
 
 export default function configurePassport(passport) {
     passport.use(
         new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
-            const models = [db.students, db.tutors];
-
-            let promiseArray = models.map(model => model.findOne({ where: { email } }));
-
-            Promise.all(promiseArray)
-                .then(results => {
-                    let userIndex = results.findIndex(result => result !== null);
-
-                    if (userIndex == -1) {
-                        return done(null, false, { message: 'Incorrect email.' });
+            // Check if the user exists in the database
+            userModel
+                .findOne({ where: { email } })
+                .then(async (user) => {
+                    if (!user) {
+                        return done(null, false, { message: 'Incorrect email or password' });
                     }
 
-                    let user = results[userIndex];
-                    user.role = models[userIndex].name;
+                    // Compare the password
+                    bcrypt.compare(password, user.password, async (err, isMatch) => {
+                        if (err) {
+                            return done(err);
+                        }
 
-                    compare(password, user.password, (err, isMatch) => {
-                        if (err) throw err;
                         if (isMatch) {
                             return done(null, user);
                         } else {
-                            return done(null, false, { message: 'Incorrect password.' });
+                            return done(null, false, { message: 'Incorrect email or password' });
                         }
                     });
                 })
-                .catch(err => done(err));
+                .catch((err) => done(err));
         })
     );
 
     passport.serializeUser((user, done) => {
-        done(null, { id: user.id, modelName: user.constructor.name });
+        done(null, user.id);
     });
 
-    passport.deserializeUser(({ id, modelName }, done) => {
-        let model;
-        switch (modelName) {
-            case 'Student':
-                model = Student;
-                break;
-            case 'Tutor':
-                model = Tutor;
-                break;
-        }
-
-        model.findByPk(id)
-            .then(user => done(null, user))
-            .catch(err => done(err));
+    passport.deserializeUser((id, done) => {
+        userModel
+            .findByPk(id)
+            .then((user) => done(null, user))
+            .catch((err) => done(err));
     });
-};
+}

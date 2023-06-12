@@ -14,6 +14,8 @@ import { HomeComponent } from './home';
 import { TutorratingComponent } from './tutorrating/tutorrating.component';
 import { RatingformComponent } from './ratingform/ratingform.component';
 import { RouterModule } from '@angular/router';
+import { TutorappComponent } from './tutorapp/tutorapp.component';
+import { TutorsignupComponent } from './tutorsignup/tutorsignup.component';
 
 @NgModule({
     imports: [
@@ -28,14 +30,16 @@ import { RouterModule } from '@angular/router';
         AlertComponent,
         HomeComponent,
         TutorratingComponent,
-        RatingformComponent
+        RatingformComponent,
+        TutorappComponent,
+        TutorsignupComponent
     ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
 
         // provider used to create fake backend
-        fakeBackendProvider
+        //fakeBackendProvider
     ],
     bootstrap: [AppComponent]
 })
